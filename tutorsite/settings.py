@@ -37,6 +37,14 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    'core',       # 1. Общие утилиты
+    'users',      # 2. Пользователи и профили
+    'tutors',     # 3. Каталог репетиторов и поиск
+    'reviews',    # 4. Отзывы
+    'lessons',    # 5. Уроки и бронирование
+    'payments',   # 6. Оплата и транзакции
+    'chat',       # 7. Чат/Сообщения
 ]
 
 MIDDLEWARE = [
@@ -115,3 +123,5 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+
+AUTH_USER_MODEL= 'users.CustomUser'
