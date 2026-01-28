@@ -1,10 +1,20 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import HttpResponse
+from django.contrib.auth import login 
+from .forms import StudentRegistrationForm
 
-# Заглушка для register_view
+
 def register_view(request):
-    # Эта функция пока ничего не делает, но ее достаточно, чтобы Django прошел проверку
-    return HttpResponse("Страница регистрации (ЗАГЛУШКА)")
+    if request.method == 'POST':
+        form = StudentRegistrationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user) # Сразу логиним пользователя после регистрации
+            return redirect('home') # Редирект на главную страницу
+    else:
+        form = StudentRegistrationForm()
+    
+    return render(request, 'users/register.html', {'form': form})
 
 # Заглушка для login_view
 def login_view(request):

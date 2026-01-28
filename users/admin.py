@@ -1,3 +1,6 @@
 from django.contrib import admin
+from django.contrib.auth.admin import UserAdmin
+from .models import CustomUser
 
-# Register your models here.
+# Регистрируем нашу кастомную модель пользователя
+admin.site.register(CustomUser, UserAdmin)

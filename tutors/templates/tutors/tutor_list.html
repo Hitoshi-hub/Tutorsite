@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    
+    <h1> Список миротворца</h1>
+    
+    <form method="get" style="margin-bottom: 20px; padding: 15px; background: #f4f4f4; border-radius: 8px;">
+    <input type="text" name="search" placeholder="Найти предмет (например, Математика)..." 
+           value="{{ request.GET.search }}" style="padding: 8px; width: 300px;">
+    <button type="submit" style="padding: 8px 15px; cursor: pointer;">Найти</button>
+    <a href="{% url 'tutor_list' %}" style="margin-left: 10px; color: #666;">Сбросить</a>
+    </form>
+
+    <div class="tutor-grid">
+        {% for tutor in tutors %}
+            <div class="tutor-card" style="border: 1px solid #ccc; margin: 10px; padding: 10px;">
+                
+                <h2>
+                <a href="{% url 'tutor_detail' pk=tutor.pk %}">
+                    {{ tutor.user.username }}
+                </a>
+                </h2>
+
+                <p><strong>Предметы:</strong> 
+                    {% for subject in tutor.subjects.all %}
+                        {{ subject.name }}{% if not forloop.last %}, {% endif %}
+                    {% endfor %}
+                </p>
+                <p><strong>Опыт:</strong> {{ tutor.experience_years }} лет</p>
+                <p><strong>Цена:</strong> {{ tutor.hourly_rate }} руб/час</p>
+                <p>{{ tutor.bio|truncatewords:20 }}</p>
+                <a href="#">Связаться (скоро)</a>
+            </div>
+        {% empty %}
+            <p>Репетиторов пока нет.</p>
+        {% endfor %}
+    </div>
+    
+{% endblock %}

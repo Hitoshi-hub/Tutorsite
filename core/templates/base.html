@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>TutorSite</title>
+    <style>
+        nav { background: #333; padding: 10px; margin-bottom: 20px; }
+        nav a { color: white; margin-right: 15px; text-decoration: none; }
+        .container { max-width: 1000px; margin: 0 auto; }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="container">
+            <a href="{% url 'home' %}">🏠 Главная</a>
+            <a href="{% url 'tutor_list' %}">🔍 Найти репетитора</a>
+            <a href="{% url 'become_tutor' %}">📝 Стать репетитором</a>
+            {% if user.is_authenticated %}
+                <span style="color: #aaa;">Привет, {{ user.username }}!</span>
+            {% else %}
+                <a href="{% url 'register' %}">Регистрация</a>
+            {% endif %}
+        </div>
+    </nav>
+    <div class="container">
+        {% block content %}{% endblock %}
+    </div>
+</body>
+</html>

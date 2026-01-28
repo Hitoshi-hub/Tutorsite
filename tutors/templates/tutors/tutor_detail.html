@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  
+    <style>
+        .profile-container { max-width: 800px; margin: 0 auto; font-family: sans-serif; }
+        .badge { background: #eee; padding: 5px 10px; border-radius: 4px; margin-right: 5px; }
+        .price { font-size: 24px; color: green; font-weight: bold; }
+        .booking-btn { background: #007bff; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; display: inline-block; margin-top: 20px; }
+    </style>
+
+
+    <div class="profile-container">
+        <a href="{% url 'tutor_list' %}">← Назад к списку</a>
+        
+        <h1>{{ tutor.user.username }}</h1>
+        
+        <p>
+            {% for subject in tutor.subjects.all %}
+                <span class="badge">{{ subject.name }}</span>
+            {% endfor %}
+        </p>
+
+        <div class="price">{{ tutor.hourly_rate }} руб/час</div>
+        <p><strong>Опыт:</strong> {{ tutor.experience_years }} лет</p>
+        
+        <hr>
+        
+        <h3>О себе</h3>
+        <p>{{ tutor.bio|linebreaks }}</p>
+
+        <a href="#" class="booking-btn">Забронировать пробный урок</a>
+        
+        <div style="margin-top: 50px;">
+            <h3>Отзывы</h3>
+            <p><i>Отзывов пока нет. Станьте первым!</i></p>
+        </div>
+    </div>
+{% endblock %}

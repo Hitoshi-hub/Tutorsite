@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block content %}
+   
+<div style="max-width: 600px; margin: 0 auto; font-family: sans-serif;">
+    <h1>Стать репетитором</h1>
+    <p>Заполните информацию о себе, чтобы ученики могли вас найти.</p>
+    
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" style="padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px;">
+            Опубликовать профиль
+        </button>
+    </form>
+</div> 
+{% endblock %}
