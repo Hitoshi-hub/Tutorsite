@@ -1,7 +1,9 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
-from django.contrib.auth import login 
+from django.contrib.auth import login, authenticate
 from .forms import StudentRegistrationForm
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import AuthenticationForm
 
 
 def register_view(request):
@@ -16,10 +18,26 @@ def register_view(request):
     
     return render(request, 'users/register.html', {'form': form})
 
-# Заглушка для login_view
 def login_view(request):
-    return HttpResponse("Страница входа (ЗАГЛУШКА)")
+    if request.method == 'POST':
+        form = AuthenticationForm(data=request.POST)
+        if form.is_valid():
+            user = form.get_user()
+            login(request, user)
+            return redirect('home') # Или куда тебе нужно после входа
+    else:
+        form = AuthenticationForm()
+    
+    return render(request, 'users/login.html', {'form': form})
 
-# Заглушка для profile_view
+
+@login_required
 def profile_view(request):
-    return HttpResponse("Страница для профиля (ЗАГЛУШКА)")
+    # Пытаемся получить профиль репетитора, если он есть
+    tutor_profile = getattr(request.user, 'tutor_profile', None)
+    
+    context = {
+        'user': request.user,
+        'tutor_profile': tutor_profile,
+    }
+    return render(request, 'users/profile.html', context)

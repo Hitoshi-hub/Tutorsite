@@ -1,0 +1,51 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-4">
+        <div class="card shadow-sm mb-4">
+            <div class="card-body text-center">
+                <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px; font-size: 2rem;">
+                    {{ user.username|slice:":1"|upper }}
+                </div>
+                <h4>{{ user.username }}</h4>
+                <p class="text-muted">{{ user.email }}</p>
+                <span class="badge {% if user.is_tutor %}bg-success{% else %}bg-info{% endif %}">
+                    {% if user.is_tutor %}Репетитор{% else %}Ученик{% endif %}
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        {% if tutor_profile %}
+            <div class="card shadow-sm">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Моя анкета репетитора</h5>
+                    <a href="{% url 'edit_tutor_profile' %}" class="btn btn-sm btn-outline-primary">Редактировать</a>
+                </div>
+                <div class="card-body">
+                    <p><strong>Предметы:</strong> 
+                        {% for subject in tutor_profile.subjects.all %}
+                            <span class="badge bg-secondary">{{ subject.name }}</span>
+                        {% endfor %}
+                    </p>
+                    <p><strong>Ставка:</strong> {{ tutor_profile.hourly_rate }} ₽/час</p>
+                    <p><strong>Опыт:</strong> {{ tutor_profile.experience_years }} лет</p>
+                    <hr>
+                    <h6>О себе:</h6>
+                    <p>{{ tutor_profile.bio|linebreaks }}</p>
+                </div>
+            </div>
+        {% else %}
+            <div class="card shadow-sm">
+                <div class="card-body text-center py-5">
+                    <h3>Вы еще не репетитор</h3>
+                    <p class="text-muted">Хотите начать зарабатывать на своих знаниях?</p>
+                    <a href="{% url 'become_tutor' %}" class="btn btn-primary">Заполнить анкету</a>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

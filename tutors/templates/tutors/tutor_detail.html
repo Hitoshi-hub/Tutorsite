@@ -36,4 +36,49 @@
             <p><i>Отзывов пока нет. Станьте первым!</i></p>
         </div>
     </div>
+
+    <hr class="my-5">
+
+<div class="row">
+    <div class="col-md-8">
+        <h3>Отзывы ({{ reviews.count }})</h3>
+        
+        {% for review in reviews %}
+            <div class="card mb-3 shadow-sm border-0">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <h6 class="fw-bold">{{ review.author.username }}</h6>
+                        <span class="text-warning">
+                            {% for i in "12345" %}
+                                {% if forloop.counter <= review.rating %}★{% else %}☆{% endif %}
+                            {% endfor %}
+                        </span>
+                    </div>
+                    <p class="mb-1 text-secondary">{{ review.text }}</p>
+                    <small class="text-muted">{{ review.created_at|date:"d.m.Y" }}</small>
+                </div>
+            </div>
+        {% empty %}
+            <p class="text-muted italic">Отзывов пока нет. Будьте первым!</p>
+        {% endfor %}
+    </div>
+
+    <div class="col-md-4">
+        {% if user.is_authenticated %}
+            <div class="card p-3 bg-light border-0">
+                <h5>Оставить отзыв</h5>
+                <form method="post">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    <button type="submit" class="btn btn-primary w-100">Отправить</button>
+                </form>
+            </div>
+        {% else %}
+            <div class="alert alert-warning">
+                Чтобы оставить отзыв, <a href="{% url 'register' %}">зарегистрируйтесь</a>.
+            </div>
+        {% endif %}
+    </div>
+</div>
+
 {% endblock %}

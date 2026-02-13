@@ -1,5 +1,8 @@
 from django.db import models
 from users.models import CustomUser
+from django.conf import settings
+
+
 
 class Subject(models.Model):
     # Предметы, которые можно преподавать (например, "Математика", "Английский").
@@ -10,14 +13,14 @@ class Subject(models.Model):
         return self.name
 
 class TutorProfile(models.Model):
-    # Подробная информация о репетиторе.
-    
-    # Связь с моделью пользователя (один к одному)
+
     user = models.OneToOneField(
-        CustomUser, 
+        settings.AUTH_USER_MODEL, 
         on_delete=models.CASCADE, 
         related_name='tutor_profile'
     )
+    
+    avatar = models.ImageField(upload_to='avatars/', null=True, blank=True, verbose_name="Фото профиля")
     
     # Основная информация
     bio = models.TextField(
@@ -51,3 +54,16 @@ class TutorProfile(models.Model):
 
     def __str__(self):
         return f"Профиль репетитора: {self.user.username}"
+
+class Review(models.Model):
+    # Связываем отзыв с репетитором
+    tutor = models.ForeignKey(TutorProfile, on_delete=models.CASCADE, related_name='reviews')
+    # Связываем отзыв с автором (учеником)
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    
+    text = models.TextField(verbose_name="Ваш отзыв")
+    rating = models.PositiveSmallIntegerField(choices=[(i, i) for i in range(1, 6)], verbose_name="Оценка")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __clstr__(self):
+        return f"Отзыв от {self.author.username} для {self.tutor.user.username}"

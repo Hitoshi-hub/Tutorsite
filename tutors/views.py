@@ -1,14 +1,35 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from .models import TutorProfile
-from .forms import TutorProfileForm 
+from .forms import TutorProfileForm, ReviewForm
 from .models import TutorProfile
+
 
 def tutor_detail(request, pk):
     # Пытаемся найти репетитора по ID (pk), если нет — показываем 404
     tutor = get_object_or_404(TutorProfile, pk=pk)
     
-    return render(request, 'tutors/tutor_detail.html', {'tutor': tutor})
+    reviews = tutor.reviews.all().order_by('-created_at') 
+    if request.method == 'POST':
+        if not request.user.is_authenticated:
+            return redirect('login') # Или просто запретить отправку в шаблоне
+            
+        form = ReviewForm(request.POST)
+        if form.is_valid():
+            review = form.save(commit=False)
+            review.tutor = tutor
+            review.author = request.user
+            review.save()
+            return redirect('tutor_detail', pk=pk)
+    else:
+        form = ReviewForm()
+
+    return render(request, 'tutors/tutor_detail.html', {
+        'tutor': tutor,
+        'reviews': reviews,
+        'form': form
+    })
+
 
 def tutor_list(request):
     # 1. Сначала ПОЛУЧАЕМ данные
@@ -46,3 +67,19 @@ def become_tutor(request):
 
     # 2. Отправляем их в HTML-шаблон
     return render(request, 'tutors/become_tutor.html', {'form': form})
+
+@login_required
+def edit_tutor_profile(request):
+    # Берем профиль именно текущего юзера
+    profile = get_object_or_404(TutorProfile, user=request.user)
+    
+    if request.method == 'POST':
+        # instance=profile говорит Django обновить старую запись, а не создавать новую
+        form = TutorProfileForm(request.POST, instance=profile)
+        if form.is_valid():
+            form.save()
+            return redirect('profile') # Возвращаемся в кабинет
+    else:
+        form = TutorProfileForm(instance=profile)
+    
+    return render(request, 'tutors/become_tutor.html', {'form': form, 'edit': True})

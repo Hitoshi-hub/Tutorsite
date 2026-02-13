@@ -1,39 +1,43 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    
-    <h1> Список миротворца</h1>
-    
-    <form method="get" style="margin-bottom: 20px; padding: 15px; background: #f4f4f4; border-radius: 8px;">
-    <input type="text" name="search" placeholder="Найти предмет (например, Математика)..." 
-           value="{{ request.GET.search }}" style="padding: 8px; width: 300px;">
-    <button type="submit" style="padding: 8px 15px; cursor: pointer;">Найти</button>
-    <a href="{% url 'tutor_list' %}" style="margin-left: 10px; color: #666;">Сбросить</a>
-    </form>
-
-    <div class="tutor-grid">
-        {% for tutor in tutors %}
-            <div class="tutor-card" style="border: 1px solid #ccc; margin: 10px; padding: 10px;">
-                
-                <h2>
-                <a href="{% url 'tutor_detail' pk=tutor.pk %}">
-                    {{ tutor.user.username }}
-                </a>
-                </h2>
-
-                <p><strong>Предметы:</strong> 
-                    {% for subject in tutor.subjects.all %}
-                        {{ subject.name }}{% if not forloop.last %}, {% endif %}
-                    {% endfor %}
-                </p>
-                <p><strong>Опыт:</strong> {{ tutor.experience_years }} лет</p>
-                <p><strong>Цена:</strong> {{ tutor.hourly_rate }} руб/час</p>
-                <p>{{ tutor.bio|truncatewords:20 }}</p>
-                <a href="#">Связаться (скоро)</a>
-            </div>
-        {% empty %}
-            <p>Репетиторов пока нет.</p>
-        {% endfor %}
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h1 class="display-5">Наши репетиторы</h1>
     </div>
-    
+    <div class="col-md-4">
+        <form method="get" class="d-flex">
+            <input class="form-control me-2" type="search" name="search" placeholder="Предмет..." value="{{ request.GET.search }}">
+            <button class="btn btn-primary" type="submit">Найти</button>
+        </form>
+    </div>
+</div>
+
+<div class="row">
+    {% for tutor in tutors %}
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title text-primary">{{ tutor.user.username }}</h5>
+                    <h6 class="card-subtitle mb-2 text-muted">
+                        {% for subject in tutor.subjects.all %}
+                            <span class="badge bg-secondary">{{ subject.name }}</span>
+                        {% endfor %}
+                    </h6>
+                    <p class="card-text">{{ tutor.bio|truncatewords:15 }}</p>
+                </div>
+                <div class="card-footer bg-transparent border-top-0">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="fw-bold text-success">{{ tutor.hourly_rate }} ₽/ч</span>
+                        <a href="{% url 'tutor_detail' tutor.pk %}" class="btn btn-outline-primary btn-sm">Профиль</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% empty %}
+        <div class="col-12">
+            <div class="alert alert-info">Репетиторы не найдены.</div>
+        </div>
+    {% endfor %}
+</div>
 {% endblock %}
