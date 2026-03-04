@@ -55,6 +55,35 @@ class TutorProfile(models.Model):
     def __str__(self):
         return f"Профиль репетитора: {self.user.username}"
 
+
+class TutorStudentLink(models.Model):
+    tutor = models.ForeignKey(TutorProfile, on_delete=models.CASCADE, related_name='student_links')
+    student = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='tutor_links')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('tutor', 'student')
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.tutor.user.username} -> {self.student.username}"
+
+
+class StudentGroup(models.Model):
+    tutor = models.ForeignKey(TutorProfile, on_delete=models.CASCADE, related_name='student_groups')
+    name = models.CharField(max_length=120)
+    subject = models.ForeignKey(Subject, on_delete=models.SET_NULL, null=True, blank=True)
+    members = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='student_groups', blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('tutor', 'name')
+        ordering = ['name']
+
+    def __str__(self):
+        return f"{self.name} ({self.tutor.user.username})"
+
+
 class Review(models.Model):
     # Связываем отзыв с репетитором
     tutor = models.ForeignKey(TutorProfile, on_delete=models.CASCADE, related_name='reviews')
@@ -65,5 +94,5 @@ class Review(models.Model):
     rating = models.PositiveSmallIntegerField(choices=[(i, i) for i in range(1, 6)], verbose_name="Оценка")
     created_at = models.DateTimeField(auto_now_add=True)
 
-    def __clstr__(self):
+    def __str__(self):
         return f"Отзыв от {self.author.username} для {self.tutor.user.username}"

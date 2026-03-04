@@ -1,51 +1,190 @@
-{% extends 'core/base.html' %}
+{% extends 'base.html' %}
 
 {% block content %}
-<div class="row">
-    <div class="col-md-4">
-        <div class="card shadow-sm mb-4">
-            <div class="card-body text-center">
-                <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px; font-size: 2rem;">
-                    {{ user.username|slice:":1"|upper }}
+<section class="section">
+    <div class="row g-4">
+        <div class="col-lg-4">
+            <div class="card-neo">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="avatar">
+                        {% if user.avatar %}
+                            <img src="{{ user.avatar.url }}" alt="{{ user.username }}">
+                        {% else %}
+                            {{ user.username|slice:":1"|upper }}
+                        {% endif %}
+                    </div>
+                    <div>
+                        <h3 class="mb-1">{{ user.username }}</h3>
+                        <div class="text-muted">{{ user.email }}</div>
+                        <div class="badge-chip mt-2">
+                            {% if user.is_tutor %}Репетитор{% else %}Ученик{% endif %}
+                        </div>
+                    </div>
                 </div>
-                <h4>{{ user.username }}</h4>
-                <p class="text-muted">{{ user.email }}</p>
-                <span class="badge {% if user.is_tutor %}bg-success{% else %}bg-info{% endif %}">
-                    {% if user.is_tutor %}Репетитор{% else %}Ученик{% endif %}
-                </span>
+            </div>
+
+            <div class="card-neo mt-3">
+                <h4 class="mb-3">Мои преподаватели</h4>
+                {% for tutor in my_tutors %}
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span>{{ tutor.user.username }}</span>
+                        <a class="btn-secondary" href="{% url 'tutor_detail' tutor.pk %}">Профиль</a>
+                    </div>
+                {% empty %}
+                    <div class="text-muted">Нет активных занятий с репетиторами.</div>
+                {% endfor %}
+            </div>
+
+            {% if tutor_profile %}
+                <div class="card-neo mt-3">
+                    <h4 class="mb-3">Моя анкета</h4>
+                    <div class="text-muted mb-2">{{ tutor_profile.city|default:"Онлайн" }}</div>
+                    <div class="mb-2">
+                        {% for subject in tutor_profile.subjects.all %}
+                            <span class="badge-chip">{{ subject.name }}</span>
+                        {% endfor %}
+                    </div>
+                    <div class="price">{{ tutor_profile.hourly_rate }} ₽/час</div>
+                    <a class="btn-secondary mt-3 d-inline-block" href="{% url 'edit_tutor_profile' %}">Редактировать</a>
+                </div>
+                <div class="card-neo mt-3">
+                    <h4 class="mb-3">Мои ученики</h4>
+                    {% for student in my_students %}
+                        <div class="text-muted mb-1">{{ student }}</div>
+                    {% empty %}
+                        <div class="text-muted">Пока нет записанных учеников.</div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="card-neo mt-3">
+                    <h4 class="mb-2">Хотите преподавать?</h4>
+                    <p class="text-muted">Заполните анкету и начните получать заявки.</p>
+                    <a class="btn-primary" href="{% url 'become_tutor' %}">Стать репетитором</a>
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="col-lg-8">
+            <div class="calendar mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h3 class="mb-0">Календарь занятий</h3>
+                    <span class="text-muted">Запланированные уроки</span>
+                </div>
+                <div class="calendar-grid" id="calendarGrid"></div>
+            </div>
+
+            <div class="card-neo mb-3">
+                <h4 class="mb-3">Ближайшие занятия</h4>
+                {% for lesson in upcoming_lessons %}
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <div>
+                            <strong>{% if lesson.subject %}{{ lesson.subject.name }}{% else %}Занятие{% endif %}</strong>
+                            <div class="text-muted">
+                                {{ lesson.start_time|date:"d.m.Y H:i" }} ·
+                                {% if lesson.group %}
+                                    группа {{ lesson.group.name }}
+                                {% elif lesson.student and lesson.student == user %}
+                                    {{ lesson.tutor.user.username }}
+                                {% elif lesson.student %}
+                                    {{ lesson.student.username }}
+                                {% else %}
+                                    {{ lesson.tutor.user.username }}
+                                {% endif %}
+                            </div>
+                        </div>
+                        <span class="badge-chip">{{ lesson.get_status_display }}</span>
+                    </div>
+                {% empty %}
+                    <div class="text-muted">Пока нет запланированных уроков.</div>
+                {% endfor %}
+            </div>
+
+            <div class="card-neo">
+                <h4 class="mb-3">Прошедшие занятия</h4>
+                {% for lesson in past_lessons %}
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <div>
+                            <strong>{% if lesson.subject %}{{ lesson.subject.name }}{% else %}Занятие{% endif %}</strong>
+                            <div class="text-muted">
+                                {{ lesson.start_time|date:"d.m.Y H:i" }} ·
+                                {% if lesson.group %}
+                                    группа {{ lesson.group.name }}
+                                {% elif lesson.student and lesson.student == user %}
+                                    {{ lesson.tutor.user.username }}
+                                {% elif lesson.student %}
+                                    {{ lesson.student.username }}
+                                {% else %}
+                                    {{ lesson.tutor.user.username }}
+                                {% endif %}
+                            </div>
+                        </div>
+                        <span class="badge-chip">{{ lesson.get_status_display }}</span>
+                    </div>
+                {% empty %}
+                    <div class="text-muted">Здесь появится история после первых уроков.</div>
+                {% endfor %}
             </div>
         </div>
     </div>
+</section>
 
-    <div class="col-md-8">
-        {% if tutor_profile %}
-            <div class="card shadow-sm">
-                <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">Моя анкета репетитора</h5>
-                    <a href="{% url 'edit_tutor_profile' %}" class="btn btn-sm btn-outline-primary">Редактировать</a>
-                </div>
-                <div class="card-body">
-                    <p><strong>Предметы:</strong> 
-                        {% for subject in tutor_profile.subjects.all %}
-                            <span class="badge bg-secondary">{{ subject.name }}</span>
-                        {% endfor %}
-                    </p>
-                    <p><strong>Ставка:</strong> {{ tutor_profile.hourly_rate }} ₽/час</p>
-                    <p><strong>Опыт:</strong> {{ tutor_profile.experience_years }} лет</p>
-                    <hr>
-                    <h6>О себе:</h6>
-                    <p>{{ tutor_profile.bio|linebreaks }}</p>
-                </div>
-            </div>
-        {% else %}
-            <div class="card shadow-sm">
-                <div class="card-body text-center py-5">
-                    <h3>Вы еще не репетитор</h3>
-                    <p class="text-muted">Хотите начать зарабатывать на своих знаниях?</p>
-                    <a href="{% url 'become_tutor' %}" class="btn btn-primary">Заполнить анкету</a>
-                </div>
-            </div>
-        {% endif %}
-    </div>
-</div>
+{{ lessons_payload|json_script:"lessonsPayload" }}
+
+<script>
+(function () {
+  const container = document.getElementById('calendarGrid');
+  if (!container) return;
+
+  const data = JSON.parse(document.getElementById('lessonsPayload').textContent);
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth();
+  const firstDay = new Date(year, month, 1);
+  const lastDay = new Date(year, month + 1, 0);
+  const startWeekday = firstDay.getDay() === 0 ? 6 : firstDay.getDay() - 1;
+
+  const totalCells = startWeekday + lastDay.getDate();
+  const cells = Math.ceil(totalCells / 7) * 7;
+
+  for (let i = 0; i < cells; i++) {
+    const cell = document.createElement('div');
+    cell.className = 'calendar-cell';
+
+    const day = i - startWeekday + 1;
+    if (day > 0 && day <= lastDay.getDate()) {
+      const date = new Date(year, month, day);
+      const label = document.createElement('strong');
+      label.textContent = day;
+      cell.appendChild(label);
+
+      const dayLessons = data.filter(item => {
+        const start = new Date(item.start);
+        return start.getDate() === date.getDate() &&
+               start.getMonth() === date.getMonth() &&
+               start.getFullYear() === date.getFullYear();
+      });
+
+      dayLessons.slice(0, 2).forEach(item => {
+        const pill = document.createElement('div');
+        pill.className = 'calendar-pill';
+        pill.textContent = item.title;
+        cell.appendChild(pill);
+      });
+
+      if (dayLessons.length > 2) {
+        const more = document.createElement('div');
+        more.className = 'text-muted';
+        more.textContent = `+${dayLessons.length - 2} еще`;
+        cell.appendChild(more);
+      }
+
+      if (dayLessons.length > 0) {
+        cell.title = dayLessons.map(item => item.title).join('\n');
+      }
+    }
+
+    container.appendChild(cell);
+  }
+})();
+</script>
 {% endblock %}

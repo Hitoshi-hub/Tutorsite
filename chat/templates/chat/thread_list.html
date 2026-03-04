@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<section class="section">
+    <div class="card-neo">
+        <h2 class="mb-2">Мои чаты</h2>
+        <p class="text-muted">Быстрый доступ к переписке с репетиторами.</p>
+    </div>
+
+    <div class="chat-layout mt-4">
+        <div class="chat-sidebar">
+            {% for convo in conversations %}
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div>
+                        {% if convo.student == user %}
+                            <strong>{{ convo.tutor.username }}</strong>
+                            <div class="text-muted">репетитор</div>
+                        {% else %}
+                            <strong>{{ convo.student.username }}</strong>
+                            <div class="text-muted">ученик</div>
+                        {% endif %}
+                    </div>
+                    <a class="btn-secondary" href="{% url 'chat_detail' convo.pk %}">Открыть</a>
+                </div>
+            {% empty %}
+                <div class="text-muted">У вас пока нет активных чатов.</div>
+            {% endfor %}
+        </div>
+        <div class="chat-main">
+            <div class="d-flex justify-content-center align-items-center h-100 text-muted">
+                Выберите чат слева, чтобы начать переписку.
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -5,10 +5,11 @@ class TutorProfileForm(forms.ModelForm):
     class Meta:
         model = TutorProfile
         # Поля, которые пользователь будет заполнять сам
-        fields = ['subjects', 'bio', 'hourly_rate', 'experience_years']
+        fields = ['avatar', 'subjects', 'bio', 'hourly_rate', 'experience_years', 'city']
         widgets = {
             'subjects': forms.CheckboxSelectMultiple(), # Красивый выбор галочками
             'bio': forms.Textarea(attrs={'rows': 5, 'placeholder': 'Расскажите о своей методике...'}),
+            'city': forms.TextInput(attrs={'placeholder': 'Город или онлайн'}),
         }
 
 class ReviewForm(forms.ModelForm):

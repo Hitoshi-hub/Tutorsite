@@ -1,0 +1,146 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<section class="section">
+    <div class="card-neo mb-3">
+        <h2 class="mb-2">Управление занятиями</h2>
+        <p class="text-muted">Только для репетитора: группы, расписание и прикрепленные ученики.</p>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-4">
+            <div class="card-neo mb-3">
+                <h4 class="mb-3">Прикрепленные ученики</h4>
+                {% for link in attached_students %}
+                    <div class="mb-2">{{ link.student.username }}</div>
+                {% empty %}
+                    <div class="text-muted">Пока нет прикрепленных учеников.</div>
+                {% endfor %}
+            </div>
+
+            <div class="card-neo">
+                <h4 class="mb-3">Создать группу</h4>
+                <form method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="create_group">
+                    <div class="mb-2">
+                        <label class="form-label" for="{{ group_form.name.id_for_label }}">Название</label>
+                        {{ group_form.name }}
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label" for="{{ group_form.subject.id_for_label }}">Предмет</label>
+                        {{ group_form.subject }}
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label">Участники</label>
+                        {{ group_form.members }}
+                    </div>
+                    {% if group_form.non_field_errors %}
+                        <div class="text-danger small mb-2">{{ group_form.non_field_errors }}</div>
+                    {% endif %}
+                    <button class="icon-btn icon-btn-primary" type="submit" title="Создать группу">
+                        <i class="bi bi-collection"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <div class="col-lg-8">
+            <div class="card-neo mb-3">
+                <h4 class="mb-3">Назначить занятие</h4>
+                <form method="post" class="row g-2">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="create_lesson">
+
+                    <div class="col-md-6">
+                        <label class="form-label" for="{{ lesson_form.subject.id_for_label }}">Предмет</label>
+                        {{ lesson_form.subject }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="{{ lesson_form.start_date.id_for_label }}">Дата</label>
+                        {{ lesson_form.start_date }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="{{ lesson_form.start_clock.id_for_label }}">Время (24ч)</label>
+                        {{ lesson_form.start_clock }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="{{ lesson_form.student.id_for_label }}">Ученик</label>
+                        {{ lesson_form.student }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="{{ lesson_form.group.id_for_label }}">Группа</label>
+                        {{ lesson_form.group }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="{{ lesson_form.duration_minutes.id_for_label }}">Длительность (мин.)</label>
+                        {{ lesson_form.duration_minutes }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="{{ lesson_form.status.id_for_label }}">Статус</label>
+                        {{ lesson_form.status }}
+                    </div>
+                    {% if lesson_form.non_field_errors %}
+                        <div class="text-danger small">{{ lesson_form.non_field_errors }}</div>
+                    {% endif %}
+                    <div>
+                        <button class="icon-btn icon-btn-primary" type="submit" title="Назначить занятие">
+                            <i class="bi bi-calendar-plus"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="card-neo mb-3">
+                <h4 class="mb-3">Мои группы</h4>
+                {% for group in groups %}
+                    <div class="mb-3">
+                        <strong>{{ group.name }}</strong>
+                        <div class="text-muted">
+                            {% if group.subject %}{{ group.subject.name }}{% else %}Без предмета{% endif %}
+                        </div>
+                        <div class="small">
+                            {% for member in group.members.all %}
+                                <span class="badge-chip">{{ member.username }}</span>
+                            {% empty %}
+                                <span class="text-muted">Нет участников</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% empty %}
+                    <div class="text-muted">Группы еще не созданы.</div>
+                {% endfor %}
+            </div>
+
+            <div class="card-neo">
+                <h4 class="mb-3">Ближайшие занятия</h4>
+                {% for lesson in lessons %}
+                    <div class="mb-2 d-flex justify-content-between">
+                        <div>
+                            <strong>{% if lesson.subject %}{{ lesson.subject.name }}{% else %}Занятие{% endif %}</strong>
+                            <div class="text-muted">
+                                {{ lesson.start_time|date:"d.m.Y H:i" }} ·
+                                {% if lesson.group %}группа {{ lesson.group.name }}{% else %}{{ lesson.student.username }}{% endif %}
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="badge-chip">{{ lesson.get_status_display }}</span>
+                            <a class="icon-btn" href="{% url 'lesson_edit' lesson.id %}" title="Редактировать">
+                                <i class="bi bi-pencil-square"></i>
+                            </a>
+                            <form method="post" action="{% url 'lesson_delete' lesson.id %}">
+                                {% csrf_token %}
+                                <button class="icon-btn icon-btn-danger" type="submit" title="Удалить">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                {% empty %}
+                    <div class="text-muted">Занятия пока не назначены.</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

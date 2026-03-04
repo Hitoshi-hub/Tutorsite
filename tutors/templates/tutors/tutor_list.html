@@ -1,43 +1,89 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="row mb-4">
-    <div class="col-md-8">
-        <h1 class="display-5">Наши репетиторы</h1>
+<section class="section">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+        <div>
+            <h1 class="hero-title">Каталог репетиторов</h1>
+            <p class="hero-subtitle">Найди преподавателя по предмету, городу, цене и опыту.</p>
+        </div>
+        <a class="btn-primary" href="{% url 'become_tutor' %}">Хочу стать репетитором</a>
     </div>
-    <div class="col-md-4">
-        <form method="get" class="d-flex">
-            <input class="form-control me-2" type="search" name="search" placeholder="Предмет..." value="{{ request.GET.search }}">
-            <button class="btn btn-primary" type="submit">Найти</button>
-        </form>
-    </div>
-</div>
 
-<div class="row">
-    {% for tutor in tutors %}
-        <div class="col-md-4 mb-4">
-            <div class="card h-100 shadow-sm">
-                <div class="card-body">
-                    <h5 class="card-title text-primary">{{ tutor.user.username }}</h5>
-                    <h6 class="card-subtitle mb-2 text-muted">
-                        {% for subject in tutor.subjects.all %}
-                            <span class="badge bg-secondary">{{ subject.name }}</span>
-                        {% endfor %}
-                    </h6>
-                    <p class="card-text">{{ tutor.bio|truncatewords:15 }}</p>
-                </div>
-                <div class="card-footer bg-transparent border-top-0">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <span class="fw-bold text-success">{{ tutor.hourly_rate }} ₽/ч</span>
-                        <a href="{% url 'tutor_detail' tutor.pk %}" class="btn btn-outline-primary btn-sm">Профиль</a>
-                    </div>
-                </div>
+    <form method="get" class="form-shell mb-4">
+        <div class="row g-3">
+            <div class="col-md-4">
+                <label class="form-label">Ключевые слова</label>
+                <input class="form-control" type="search" name="q" placeholder="Математика, ЕГЭ, онлайн..." value="{{ query }}">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Предмет</label>
+                <select class="form-select" name="subject">
+                    <option value="">Любой</option>
+                    {% for subject in subjects %}
+                        <option value="{{ subject.id }}" {% if subject_id|stringformat:"s" == subject.id|stringformat:"s" %}selected{% endif %}>{{ subject.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Город</label>
+                <input class="form-control" type="text" name="city" placeholder="Онлайн или город" value="{{ city }}">
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Опыт от</label>
+                <input class="form-control" type="number" name="min_exp" placeholder="0" value="{{ min_exp }}">
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Цена от</label>
+                <input class="form-control" type="number" name="min_rate" placeholder="500" value="{{ min_rate }}">
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Цена до</label>
+                <input class="form-control" type="number" name="max_rate" placeholder="3000" value="{{ max_rate }}">
+            </div>
+            <div class="col-12 d-flex gap-2">
+                <button class="btn-primary" type="submit">Найти</button>
+                <a class="btn-secondary" href="{% url 'tutor_list' %}">Сбросить</a>
             </div>
         </div>
-    {% empty %}
-        <div class="col-12">
-            <div class="alert alert-info">Репетиторы не найдены.</div>
-        </div>
-    {% endfor %}
-</div>
+    </form>
+
+    <div class="card-grid">
+        {% for tutor in tutors %}
+            <div class="card-neo">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <div class="avatar">
+                        {% if tutor.avatar %}
+                            <img src="{{ tutor.avatar.url }}" alt="{{ tutor.user.username }}">
+                        {% else %}
+                            {{ tutor.user.username|slice:":1"|upper }}
+                        {% endif %}
+                    </div>
+                    <div>
+                        <h4 class="mb-1">{{ tutor.user.username }}</h4>
+                        <div class="text-muted">{{ tutor.city|default:"Онлайн" }}</div>
+                        <div class="stars">
+                            {% for i in "12345" %}
+                                {% if tutor.avg_rating and forloop.counter <= tutor.avg_rating %}★{% else %}☆{% endif %}
+                            {% endfor %}
+                            <span class="text-muted">{{ tutor.avg_rating|default_if_none:0|floatformat:1 }} · {{ tutor.reviews_count }}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    {% for subject in tutor.subjects.all %}
+                        <span class="badge-chip">{{ subject.name }}</span>
+                    {% endfor %}
+                </div>
+                <p class="text-muted">{{ tutor.bio|truncatewords:18 }}</p>
+                <div class="d-flex justify-content-between align-items-center mt-3">
+                    <div class="price">{{ tutor.hourly_rate }} ₽/ч</div>
+                    <a href="{% url 'tutor_detail' tutor.pk %}" class="btn-secondary">Профиль</a>
+                </div>
+            </div>
+        {% empty %}
+            <div class="card-neo">Репетиторы не найдены. Попробуйте изменить фильтры.</div>
+        {% endfor %}
+    </div>
+</section>
 {% endblock %}

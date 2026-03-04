@@ -1,7 +1,57 @@
-{% extends 'base.html' %}{% block content %}
+{% extends 'base.html' %}
 
-    <h2>Базовая страница сайта с репетиторами</h2>
-    <h3>В будующем до пилим</h3>
-    <a href="{% url 'become_tutor' %}">Стать репетитором</a>
-    
+{% block content %}
+<section class="hero">
+    <div class="hero-card">
+        <div class="row align-items-center g-4">
+            <div class="col-lg-7">
+                <h1 class="hero-title">Найди репетитора, с которым реально хочется учиться.</h1>
+                <p class="hero-subtitle">
+                    TutorSite помогает собрать расписание, чаты и отзывы в одном месте. Быстрый поиск, умный кабинет и понятные профили.
+                </p>
+                <div class="hero-cta">
+                    <a class="btn-primary" href="{% url 'tutor_list' %}">Подобрать репетитора</a>
+                    <a class="btn-secondary" href="{% url 'become_tutor' %}">Стать преподавателем</a>
+                </div>
+            </div>
+            <div class="col-lg-5">
+                <div class="stat-grid">
+                    <div class="stat-card">
+                        <div class="stat-title">Активных направлений</div>
+                        <div class="stat-value">24</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-title">Средняя оценка</div>
+                        <div class="stat-value">4.8</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-title">Скорость ответа</div>
+                        <div class="stat-value">15 мин</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-title">Онлайн-чат</div>
+                        <div class="stat-value">24/7</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="card-grid">
+        <div class="card-neo">
+            <h3>Персональный кабинет</h3>
+            <p class="text-muted">Уроки, календарь, преподаватели и заметки собраны в одном месте.</p>
+        </div>
+        <div class="card-neo">
+            <h3>Чаты без лишнего шума</h3>
+            <p class="text-muted">Переписка с репетитором и история договоренностей доступна всегда.</p>
+        </div>
+        <div class="card-neo">
+            <h3>Честные отзывы</h3>
+            <p class="text-muted">Детальная система оценок и понятные комментарии после занятий.</p>
+        </div>
+    </div>
+</section>
 {% endblock %}

@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<section class="section">
+    <div class="card-neo mb-3">
+        <h2 class="mb-2">Редактировать занятие</h2>
+        <p class="text-muted">Изменения отправятся ученикам уведомлением и сообщением в чат.</p>
+    </div>
+
+    <div class="card-neo">
+        <form method="post" class="row g-2">
+            {% csrf_token %}
+            <div class="col-md-6">
+                <label class="form-label" for="{{ form.subject.id_for_label }}">Предмет</label>
+                {{ form.subject }}
+            </div>
+            <div class="col-md-6">
+                <label class="form-label" for="{{ form.start_date.id_for_label }}">Дата</label>
+                {{ form.start_date }}
+            </div>
+            <div class="col-md-6">
+                <label class="form-label" for="{{ form.start_clock.id_for_label }}">Время (24ч)</label>
+                {{ form.start_clock }}
+            </div>
+            <div class="col-md-6">
+                <label class="form-label" for="{{ form.duration_minutes.id_for_label }}">Длительность (мин.)</label>
+                {{ form.duration_minutes }}
+            </div>
+            <div class="col-md-6">
+                <label class="form-label" for="{{ form.student.id_for_label }}">Ученик</label>
+                {{ form.student }}
+            </div>
+            <div class="col-md-6">
+                <label class="form-label" for="{{ form.group.id_for_label }}">Группа</label>
+                {{ form.group }}
+            </div>
+            <div class="col-md-6">
+                <label class="form-label" for="{{ form.status.id_for_label }}">Статус</label>
+                {{ form.status }}
+            </div>
+            {% if form.non_field_errors %}
+                <div class="text-danger small">{{ form.non_field_errors }}</div>
+            {% endif %}
+            <div class="d-flex gap-2 mt-2">
+                <button class="icon-btn icon-btn-primary" type="submit" title="Сохранить">
+                    <i class="bi bi-check2"></i>
+                </button>
+                <a class="icon-btn" href="{% url 'tutor_dashboard' %}" title="Отмена">
+                    <i class="bi bi-x-lg"></i>
+                </a>
+            </div>
+        </form>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<section class="section">
+    <a class="badge-chip" href="{% url 'chat_list' %}">← Все чаты</a>
+
+    <div class="chat-layout mt-3">
+        <div class="chat-sidebar">
+            <h4 class="mb-2">Собеседник</h4>
+            {% if conversation.student == user %}
+                <div class="text-muted">Репетитор</div>
+                <strong>{{ conversation.tutor.username }}</strong>
+            {% else %}
+                <div class="text-muted">Ученик</div>
+                <strong>{{ conversation.student.username }}</strong>
+            {% endif %}
+        </div>
+        <div class="chat-main">
+            {% if conversation.student == user %}
+                <form method="post" class="mb-3">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="request_enrollment">
+                    <button class="icon-btn" type="submit" title="Записаться к репетитору">
+                        <i class="bi bi-person-plus"></i>
+                    </button>
+                </form>
+            {% endif %}
+
+            <div class="message-list">
+                {% for message in messages %}
+                    <div class="message {% if message.sender == user %}me{% endif %}">
+                        <div class="text-muted" style="font-size: 0.75rem;">{{ message.sender.username }}</div>
+                        {% if message.kind == 'enrollment_request' %}
+                            <div><strong>Заявка:</strong> {{ message.body }}</div>
+                            <div class="text-muted" style="font-size: 0.7rem;">
+                                Статус: {{ message.get_enrollment_status_display }}
+                            </div>
+                            {% if user == conversation.tutor and message.enrollment_status == 'pending' %}
+                                <form method="post" class="mt-2">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="accept_enrollment">
+                                    <input type="hidden" name="message_id" value="{{ message.id }}">
+                                    <button class="icon-btn icon-btn-primary" type="submit" title="Принять ученика">
+                                        <i class="bi bi-check2-circle"></i>
+                                    </button>
+                                </form>
+                            {% endif %}
+                        {% else %}
+                            <div>{{ message.body }}</div>
+                        {% endif %}
+                        <div class="text-muted" style="font-size: 0.7rem;">{{ message.created_at|date:"d.m H:i" }}</div>
+                    </div>
+                {% empty %}
+                    <div class="text-muted">Сообщений пока нет. Начните диалог.</div>
+                {% endfor %}
+            </div>
+            <form method="post" class="mt-3">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="send_message">
+                <div class="d-flex gap-2">
+                    <input class="form-control" type="text" name="body" placeholder="Напишите сообщение..." required>
+                    <button class="icon-btn icon-btn-primary" type="submit" title="Отправить">
+                        <i class="bi bi-send"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+{% endblock %}
