@@ -21,17 +21,31 @@
                         </div>
                     </div>
                 </div>
+                <form class="mt-3" method="post" action="{% url 'update_avatar' %}" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="mb-2">
+                        {{ avatar_form.avatar.label_tag }}
+                        {{ avatar_form.avatar }}
+                    </div>
+                    <button class="btn-secondary" type="submit">Сохранить фото</button>
+                </form>
             </div>
 
             <div class="card-neo mt-3">
                 <h4 class="mb-3">Мои преподаватели</h4>
-                {% for tutor in my_tutors %}
+                {% for link in my_tutor_links %}
                     <div class="d-flex justify-content-between align-items-center mb-2">
-                        <span>{{ tutor.user.username }}</span>
-                        <a class="btn-secondary" href="{% url 'tutor_detail' tutor.pk %}">Профиль</a>
+                        <span>{{ link.tutor.user.username }}</span>
+                        <div class="d-flex gap-2">
+                            <a class="btn-secondary" href="{% url 'tutor_detail' link.tutor.pk %}">Профиль</a>
+                            <form method="post" action="{% url 'remove_tutor' link.tutor.pk %}">
+                                {% csrf_token %}
+                                <button class="btn-secondary" type="submit">Удалить</button>
+                            </form>
+                        </div>
                     </div>
                 {% empty %}
-                    <div class="text-muted">Нет активных занятий с репетиторами.</div>
+                    <div class="text-muted">Нет добавленных репетиторов.</div>
                 {% endfor %}
             </div>
 
@@ -49,8 +63,14 @@
                 </div>
                 <div class="card-neo mt-3">
                     <h4 class="mb-3">Мои ученики</h4>
-                    {% for student in my_students %}
-                        <div class="text-muted mb-1">{{ student }}</div>
+                    {% for link in my_students %}
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="text-muted">{{ link.student.username }}</span>
+                            <form method="post" action="{% url 'remove_student' link.student.pk %}">
+                                {% csrf_token %}
+                                <button class="btn-secondary" type="submit">Удалить</button>
+                            </form>
+                        </div>
                     {% empty %}
                         <div class="text-muted">Пока нет записанных учеников.</div>
                     {% endfor %}
@@ -141,46 +161,40 @@
   const month = now.getMonth();
   const firstDay = new Date(year, month, 1);
   const lastDay = new Date(year, month + 1, 0);
-  const startWeekday = firstDay.getDay() === 0 ? 6 : firstDay.getDay() - 1;
+  const daysInMonth = lastDay.getDate();
 
-  const totalCells = startWeekday + lastDay.getDate();
-  const cells = Math.ceil(totalCells / 7) * 7;
-
-  for (let i = 0; i < cells; i++) {
+  for (let day = 1; day <= daysInMonth; day++) {
     const cell = document.createElement('div');
     cell.className = 'calendar-cell';
 
-    const day = i - startWeekday + 1;
-    if (day > 0 && day <= lastDay.getDate()) {
-      const date = new Date(year, month, day);
-      const label = document.createElement('strong');
-      label.textContent = day;
-      cell.appendChild(label);
+    const date = new Date(year, month, day);
+    const label = document.createElement('strong');
+    label.textContent = day;
+    cell.appendChild(label);
 
-      const dayLessons = data.filter(item => {
-        const start = new Date(item.start);
-        return start.getDate() === date.getDate() &&
-               start.getMonth() === date.getMonth() &&
-               start.getFullYear() === date.getFullYear();
-      });
+    const dayLessons = data.filter(item => {
+      const start = new Date(item.start);
+      return start.getDate() === date.getDate() &&
+             start.getMonth() === date.getMonth() &&
+             start.getFullYear() === date.getFullYear();
+    });
 
-      dayLessons.slice(0, 2).forEach(item => {
-        const pill = document.createElement('div');
-        pill.className = 'calendar-pill';
-        pill.textContent = item.title;
-        cell.appendChild(pill);
-      });
+    dayLessons.slice(0, 2).forEach(item => {
+      const pill = document.createElement('div');
+      pill.className = 'calendar-pill';
+      pill.textContent = item.title;
+      cell.appendChild(pill);
+    });
 
-      if (dayLessons.length > 2) {
-        const more = document.createElement('div');
-        more.className = 'text-muted';
-        more.textContent = `+${dayLessons.length - 2} еще`;
-        cell.appendChild(more);
-      }
+    if (dayLessons.length > 2) {
+      const more = document.createElement('div');
+      more.className = 'text-muted';
+      more.textContent = `+${dayLessons.length - 2} еще`;
+      cell.appendChild(more);
+    }
 
-      if (dayLessons.length > 0) {
-        cell.title = dayLessons.map(item => item.title).join('\n');
-      }
+    if (dayLessons.length > 0) {
+      cell.title = dayLessons.map(item => item.title).join('\n');
     }
 
     container.appendChild(cell);

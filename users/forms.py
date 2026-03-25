@@ -14,3 +14,9 @@ class StudentRegistrationForm(UserCreationForm):
         if commit:
             user.save()
         return user
+
+
+class UserAvatarForm(forms.ModelForm):
+    class Meta:
+        model = CustomUser
+        fields = ('avatar',)
