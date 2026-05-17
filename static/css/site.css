@@ -312,6 +312,19 @@ input, select, textarea, .form-control, .form-select {
   font-weight: 600;
 }
 
+.form-help-text {
+  margin-top: 6px;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.form-error-text {
+  margin-top: 6px;
+  font-size: 0.88rem;
+  color: #c62828;
+  font-weight: 600;
+}
+
 .profile-header {
   display: grid;
   grid-template-columns: 120px 1fr;
