@@ -90,6 +90,13 @@ html[data-theme='dark'] .site-nav {
   gap: 10px;
 }
 
+.nav-brand-logo {
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+  display: block;
+}
+
 .nav-links {
   display: flex;
   gap: 18px;
