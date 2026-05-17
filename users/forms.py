@@ -56,6 +56,15 @@ class StudentRegistrationForm(UserCreationForm):
             self._errors.pop('password2', None)
         return cleaned_data
 
+    def _post_clean(self):
+        super()._post_clean()
+        password2_errors = self.errors.as_data().get('password2', [])
+        mismatch_errors = [error for error in password2_errors if error.code == 'password_mismatch']
+        if mismatch_errors:
+            self._errors['password2'] = self.error_class(['Пароли не совпадают.'])
+        else:
+            self._errors.pop('password2', None)
+
     def save(self, commit=True):
         user = super().save(commit=False)
         user.is_student = True  # По умолчанию регистрируем как ученика
