@@ -20,6 +20,13 @@
                     {{ form.subjects.label_tag }}
                     {{ form.subjects }}
                 </div>
+                <div class="col-12">
+                    {{ form.custom_subject.label_tag }}
+                    {{ form.custom_subject }}
+                    {% if form.custom_subject.help_text %}
+                        <small class="text-muted d-block mt-1">{{ form.custom_subject.help_text }}</small>
+                    {% endif %}
+                </div>
                 <div class="col-md-4">
                     {{ form.hourly_rate.label_tag }}
                     {{ form.hourly_rate }}
